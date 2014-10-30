@@ -21,7 +21,7 @@ module ExceptionNotifier
     private
 
     def create_story
-      story = @project.stories.create(name: title, story_type: 'bug', description: body, label: 'exception_notifier')
+      story = @project.stories.create(name: title, story_type: 'bug', description: body)
     end
 
     def title
