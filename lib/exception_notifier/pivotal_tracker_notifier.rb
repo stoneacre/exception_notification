@@ -44,7 +44,7 @@ module ExceptionNotifier
       ------------------------------
 
 
-      * URL        : `#{@request.url}`
+      * URL        : #{@request.url}
       * HTTP Method: `#{@request.request_method}`
       * IP address : `#{@request.remote_ip}`
       * Parameters : `#{@request.filtered_parameters.inspect}`
