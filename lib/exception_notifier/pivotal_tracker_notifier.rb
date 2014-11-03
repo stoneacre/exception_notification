@@ -25,24 +25,22 @@ module ExceptionNotifier
     end
 
     def title
-      subject = "#{@kontroller.controller_name}##{@kontroller.action_name}" if @kontroller
-      subject << " (#{@exception.class})"
-      subject << " => #{DateTime.now.to_formatted_s(:rfc822)}"
+      subject = "[#{Rails.env.titleize}] "
+      subject << "#{@kontroller.controller_name}##{@kontroller.action_name} " if @kontroller
+      subject << "(#{@exception.class})"
     end
 
     def body
+      filtered_env = @request.filtered_env
+      max = filtered_env.keys.map(&:to_s).max { |a, b| a.length <=> b.length }
+
       <<-EOF
       #{@exception.class.to_s =~ /^[aeiou]/i ? 'An' : 'A'} #{@exception.class} occurred in #{@kontroller.controller_name}##{@kontroller.action_name}
 
-      **Backtrace:**
-      ```#{@backtrace}```
-
       **Message:**
-      ```#{@exception.message}```
-
+      ````#{@exception.message}````
 
       ------------------------------
-
 
       * URL        : #{@request.url}
       * HTTP Method: `#{@request.request_method}`
@@ -50,6 +48,22 @@ module ExceptionNotifier
       * Parameters : `#{@request.filtered_parameters.inspect}`
       * Timestamp  : `#{Time.current}`
       * Server     : `#{Socket.gethostname}`
+
+      ------------------------------
+
+      **Session**
+      * session id: #{@request.ssl? ? "[FILTERED]" : ( (@request.session['session_id'] || (@request.env["rack.session.options"] and @request.env["rack.session.options"][:id])).inspect)}
+      * data: #{@request.session.to_hash }
+
+      ------------------------------
+
+      **Data**
+      #{@data}
+
+      ------------------------------
+
+      **Backtrace:**
+      ````#{@backtrace.join("\n")}````
       EOF
     end
 
