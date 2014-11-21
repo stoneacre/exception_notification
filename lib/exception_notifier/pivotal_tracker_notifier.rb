@@ -25,7 +25,7 @@ module ExceptionNotifier
     end
 
     def title
-      subject = "[#{Rails.env.titleize}] "
+      subject = ENV['EXCEPTION_NOTIFIER_ENV'].blank? ? "[#{Rails.env.titleize}] " : "[#{ENV['EXCEPTION_NOTIFIER_ENV'].titleize}] "
       subject << "#{@kontroller.controller_name}##{@kontroller.action_name} " if @kontroller
       subject << "(#{@exception.class})"
     end
