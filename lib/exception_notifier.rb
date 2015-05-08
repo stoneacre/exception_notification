@@ -4,6 +4,8 @@ require 'active_support/core_ext/module/attribute_accessors'
 
 module ExceptionNotifier
 
+  autoload :BacktraceCleaner, 'exception_notifier/modules/backtrace_cleaner'
+
   autoload :Notifier, 'exception_notifier/notifier'
   autoload :EmailNotifier, 'exception_notifier/email_notifier'
   autoload :CampfireNotifier, 'exception_notifier/campfire_notifier'

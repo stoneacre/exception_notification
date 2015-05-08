@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module ExceptionNotifier
   class PivotalTrackerNotifier
 
@@ -7,11 +9,11 @@ module ExceptionNotifier
     end
 
     def call(exception, options={})
-      @env        = options[:env]
       @exception  = exception
-      @request    = ActionDispatch::Request.new(@env)
+      @env        = options[:env] || {}
       @options    = options.reverse_merge(@env['exception_notifier.options'] || {}).reverse_merge(options)
-      @kontroller = @env['action_controller.instance'] || MissingController.new
+      @request    = ActionDispatch::Request.new(@env) unless @env.empty?
+      @kontroller = @env['action_controller.instance'] || OpenStruct.new
       @backtrace  = exception.backtrace ? clean_backtrace(exception) : []
       @data       = (@env['exception_notifier.exception_data'] || {}).merge(options[:data] || {})
 
@@ -31,40 +33,61 @@ module ExceptionNotifier
     end
 
     def body
-      filtered_env = @request.filtered_env
-      max = filtered_env.keys.map(&:to_s).max { |a, b| a.length <=> b.length }
+      if @request
+        <<-EOF
+        #{@exception.class.to_s =~ /^[aeiou]/i ? 'An' : 'A'} #{@exception.class} occurred in #{@kontroller.controller_name}##{@kontroller.action_name}
 
-      <<-EOF
-      #{@exception.class.to_s =~ /^[aeiou]/i ? 'An' : 'A'} #{@exception.class} occurred in #{@kontroller.controller_name}##{@kontroller.action_name}
+        **Message:**
+        ````#{@exception.message}````
 
-      **Message:**
-      ````#{@exception.message}````
+        ------------------------------
 
-      ------------------------------
+        * URL        : #{@request.url}
+        * HTTP Method: `#{@request.request_method}`
+        * IP address : `#{@request.remote_ip}`
+        * Parameters : `#{@request.filtered_parameters.inspect}`
+        * Timestamp  : `#{Time.current}`
+        * Server     : `#{Socket.gethostname}`
 
-      * URL        : #{@request.url}
-      * HTTP Method: `#{@request.request_method}`
-      * IP address : `#{@request.remote_ip}`
-      * Parameters : `#{@request.filtered_parameters.inspect}`
-      * Timestamp  : `#{Time.current}`
-      * Server     : `#{Socket.gethostname}`
+        ------------------------------
 
-      ------------------------------
+        **Session**
+        * session id: #{@request.ssl? ? "[FILTERED]" : ( (@request.session['session_id'] || (@request.env["rack.session.options"] and @request.env["rack.session.options"][:id])).inspect)}
+        * data: #{@request.session.to_hash }
 
-      **Session**
-      * session id: #{@request.ssl? ? "[FILTERED]" : ( (@request.session['session_id'] || (@request.env["rack.session.options"] and @request.env["rack.session.options"][:id])).inspect)}
-      * data: #{@request.session.to_hash }
+        ------------------------------
 
-      ------------------------------
+        **Data**
+        #{@data}
 
-      **Data**
-      #{@data}
+        ------------------------------
 
-      ------------------------------
+        **Backtrace:**
+        ````#{@backtrace.join("\n")}````
+        EOF
+      else
+        <<-EOF
+        #{@exception.class.to_s =~ /^[aeiou]/i ? 'An' : 'A'} #{@exception.class} occurred
 
-      **Backtrace:**
-      ````#{@backtrace.join("\n")}````
-      EOF
+        **Message:**
+        ````#{@exception.message}````
+
+        ------------------------------
+
+        * Timestamp  : `#{Time.current}`
+        * Server     : `#{Socket.gethostname}`
+
+        ------------------------------
+
+        **Data**
+        #{@data}
+
+        ------------------------------
+
+        **Backtrace:**
+        ````#{@backtrace.join("\n")}````
+        EOF
+      end
     end
 
     def clean_backtrace(exception)

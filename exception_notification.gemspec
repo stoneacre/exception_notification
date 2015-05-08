@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = 'exception_notification'
-  s.version = '4.1.0.rc1'
+  s.version = '4.1.0'
   s.authors = ["Jamis Buck", "Josh Peek"]
-  s.date = %q{2014-04-16}
+  s.date = %q{2015-04-05}
   s.summary = "Exception notification for Rails apps"
   s.homepage = "http://smartinez87.github.com/exception_notification"
   s.email = "smartinez87@gmail.com"
@@ -30,5 +30,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "appraisal", "~> 1.0.0"
   s.add_development_dependency "hipchat", ">= 1.0.0"
   s.add_development_dependency "carrier-pigeon", ">= 0.7.0"
-  s.add_development_dependency "slack-notifier", ">= 0.5"
+  s.add_development_dependency "slack-notifier", ">= 1.0.0"
 end

@@ -1,3 +1,4 @@
+require "active_support/core_ext/hash/reverse_merge"
 require 'action_mailer'
 require 'action_dispatch'
 require 'pp'
@@ -16,6 +17,8 @@ module ExceptionNotifier
 
       def self.extended(base)
         base.class_eval do
+          include ExceptionNotifier::BacktraceCleaner
+
           # Append application view path to the ExceptionNotifier lookup context.
           self.append_view_path "#{File.dirname(__FILE__)}/views"
 
@@ -61,14 +64,6 @@ module ExceptionNotifier
           def set_data_variables
             @data.each do |name, value|
               instance_variable_set("@#{name}", value)
-            end
-          end
-
-          def clean_backtrace(exception)
-            if defined?(Rails) && Rails.respond_to?(:backtrace_cleaner)
-              Rails.backtrace_cleaner.send(:filter, exception.backtrace)
-            else
-              exception.backtrace
             end
           end
 
@@ -145,7 +140,12 @@ module ExceptionNotifier
     end
 
     def call(exception, options={})
-      create_email(exception, options).deliver
+      message = create_email(exception, options)
+      if message.respond_to?(:deliver_now)
+        message.deliver_now
+      else
+        message.deliver
+      end
     end
 
     def create_email(exception, options={})
