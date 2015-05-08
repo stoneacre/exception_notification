@@ -39,9 +39,9 @@ gem 'exception_notification'
 As of Rails 3 ExceptionNotification is used as a rack middleware, or in the environment you want it to run. In most cases you would want ExceptionNotification to run on production. Thus, you can make it work by putting the following lines in your `config/environments/production.rb`:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   }
@@ -58,8 +58,8 @@ In order to use ExceptionNotification with Sinatra, please take a look in the [e
 As of 4.x version the configuration syntax has changed. All email related options MUST BE nested under the `:email` key. Thus, previous configuration like:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotifier,
-  :email_prefix => "[Whatever] ",
+Rails.application.config.middleware.use ExceptionNotifier,
+  :email_prefix => "[PREFIX] ",
   :sender_address => %{"notifier" <notifier@example.com>},
   :exception_recipients => %w{exceptions@example.com}
 ```
@@ -67,9 +67,9 @@ Whatever::Application.config.middleware.use ExceptionNotifier,
 becomes:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   }
@@ -145,9 +145,9 @@ You can reorder the sections, or exclude sections completely, by using `sections
 describe application-specific data--just add the section's name to the list (wherever you'd like), and define the corresponding partial. Like the following example with two new added sections:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
     :sections => %w{my_section1 my_section2}
@@ -183,9 +183,9 @@ In the above case, `@document` and `@person` would be made available to the emai
 When using [background notifications](#background-notifications) some variables are not available in the views, like `@kontroller` and `@request`. Thus, you may want to include different sections for background notifications:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
     :background_sections => %w{my_section1 my_section2 backtrace data}
@@ -200,9 +200,9 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 Additionally, you may want to set customized headers on the outcoming emails. To do so, simply use the `:email_headers` option:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
     :email_headers        => { "X-Custom-Header" => "foobar" }
@@ -238,9 +238,9 @@ By default, ExceptionNotification sends emails in plain text, in order to sends 
 By default, ExceptionNotification sends emails using the ActionMailer configuration of the application. In order to send emails by another delivery method, use the `delivery_method` option:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
     :delivery_method => :postmark,
@@ -253,9 +253,9 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 Besides the `delivery_method` option, you also can customize the mailer settings by passing a hash under an option named `DELIVERY_METHOD_settings`. Thus, you can use override specific SMTP settings for notifications using:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
     :delivery_method => :smtp,
@@ -291,9 +291,9 @@ gem 'tinder'
 To configure it, you need to set the `subdomain`, `token` and `room_name` options, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -343,9 +343,9 @@ gem 'hipchat'
 To configure it, you need to set the `token` and `room_name` options, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -404,9 +404,9 @@ gem 'httparty'
 To configure it, you need to set the `url` option, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -418,9 +418,9 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 By default, the WebhookNotifier will call the URLs using the POST method. But, you can change this using the `http_method` option.
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -433,9 +433,9 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 Besides the `url` and `http_method` options, all the other options are passed directly to HTTParty. Thus, if the HTTP server requires authentication, you can include the following options:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -465,9 +465,9 @@ gem 'carrier-pigeon'
 To configure it, you need to set at least the 'domain' option, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -479,7 +479,7 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 There are several other options, which are described below. For example, to use ssl and a password, add a prefix, post to the '#log' channel, and include recipients in the message (so that they will be notified), your configuration might look like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :irc => {
     :domain => 'irc.example.com',
     :nick => 'BadNewsBot',
@@ -561,38 +561,51 @@ Just add the [slack-notifier](https://github.com/stevenosloan/slack-notifier) ge
 gem 'slack-notifier'
 ```
 
-To configure it, you need to set at least the 'team' and 'token' options, like this:
+To configure it, you need to set at least the 'webhook_url' option, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
   :slack => {
-    :team => "myteam",
-    :token => "secret-token",
+    :webhook_url => "[Your webhook url]",
     :channel => "#exceptions",
     :additional_parameters => {
-      :icon_url => "http://image.jpg"
+      :icon_url => "http://image.jpg",
+      :mrkdwn => true
     }
   }
 ```
 
+The slack notification will include any data saved under `env["exception_notifier.exception_data"]`. If you find this too verbose, you can determine to exclude certain information by doing the following:
+
+```ruby
+Rails.application.config.middleware.use ExceptionNotification::Rack,
+  :slack => {
+    :webhook_url => "[Your webhook url]",
+    :channel => "#exceptions",
+    :additional_parameters => {
+      :icon_url => "http://image.jpg",
+      :mrkdwn => true
+    },
+    :ignore_data_if => lambda {|key, value|
+      "#{key}" == 'key_to_ignore' || value.is_a?(ClassToBeIgnored)
+    }
+  }
+```
+
+Any evaluation to `true` will cause the key / value pair not be be sent along to Slack.
+
 #### Options
 
-##### team
+##### webhook_url
 
 *String, required*
 
-The name of your team on slack.
-
-##### token
-
-*String, required*
-
-The API token to access your slack team's account.
+The Incoming WebHook URL on slack.
 
 ##### channel
 
@@ -604,7 +617,7 @@ Message will appear in this channel. Defaults to the channel you set as such on 
 
 *String, optional*
 
-Username of the bot. Default: 'ExceptionNotifierBot'.
+Username of the bot. Defaults to the name you set as such on slack
 
 ##### custom_hook
 
@@ -651,9 +664,9 @@ end
 Using it:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :email => {
-    :email_prefix => "[Whatever] ",
+    :email_prefix => "[PREFIX] ",
     :sender_address => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   },
@@ -681,10 +694,10 @@ You can choose to ignore certain exceptions, which will make ExceptionNotificati
 Ignore specified exception types. To achieve that, you should use the `:ignore_exceptions` option, like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :ignore_exceptions => ['ActionView::TemplateError'] + ExceptionNotifier.ignored_exceptions,
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   }
@@ -699,10 +712,10 @@ The above will make ExceptionNotifier ignore a *TemplateError* exception, plus t
 In some cases you may want to avoid getting notifications from exceptions made by crawlers. To prevent sending those unwanted notifications, use the `:ignore_crawlers` option like this:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :ignore_crawlers => %w{Googlebot bingbot},
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com}
   }
@@ -715,10 +728,10 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 Last but not least, you can ignore exceptions based on a condition. Take a look:
 
 ```ruby
-Whatever::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
   :ignore_if => ->(env, exception) { exception.message =~ /^Couldn't find Page with ID=/ },
   :email => {
-    :email_prefix         => "[Whatever] ",
+    :email_prefix         => "[PREFIX] ",
     :sender_address       => %{"notifier" <notifier@example.com>},
     :exception_recipients => %w{exceptions@example.com},
   }
@@ -726,6 +739,17 @@ Whatever::Application.config.middleware.use ExceptionNotification::Rack,
 
 You can make use of both the environment and the exception inside the lambda to decide wether to avoid or not sending the notification.
 
+## Rack X-Cascade Header
+
+Some rack apps (Rails in particular) utilize the "X-Cascade" header to pass the request-handling responsibility to the next middleware in the stack.
+
+Rails' routing middleware uses this strategy, rather than raising an exception, to handle routing errors (e.g. 404s); to be notified whenever a 404 occurs, set this option to "false."
+
+### :ignore_cascade_pass
+
+*Boolean, default: true*
+
+Set to false to trigger notifications when another rack middleware sets the "X-Cascade" header to "pass."
 
 ## Background Notifications
 

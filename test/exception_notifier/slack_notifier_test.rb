@@ -3,81 +3,54 @@ require 'slack-notifier'
 
 class SlackNotifierTest < ActiveSupport::TestCase
 
-  test "should send a slack notification if properly configured" do
-    options = {
-      token: "token",
-      team:  "team"
-    }
-
-    Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {})
-
-    slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
+  def setup
+    @exception = fake_exception
+    @exception.stubs(:backtrace).returns(["backtrace line 1", "backtrace line 2"])
+    @exception.stubs(:message).returns('exception message')
   end
 
-  test "should send a notification as the specified hook" do
+  test "should send a slack notification if properly configured" do
     options = {
-      token: "token",
-      team:  "team",
-      custom_hook: "custom"
+      webhook_url: "http://slack.webhook.url"
     }
 
     Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {})
 
     slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
-
-    assert_equal slack_notifier.notifier.hook_name, "custom"
+    slack_notifier.call(@exception)
   end
 
   test "should send the notification to the specified channel" do
     options = {
-      token: "token",
-      team:  "team",
+      webhook_url: "http://slack.webhook.url",
       channel: "channel"
     }
 
     Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {})
 
     slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
+    slack_notifier.call(@exception)
 
     assert_equal slack_notifier.notifier.channel, options[:channel]
   end
 
   test "should send the notification to the specified username" do
     options = {
-      token: "token",
-      team:  "team",
+      webhook_url: "http://slack.webhook.url",
       username: "username"
     }
 
     Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {})
 
     slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
+    slack_notifier.call(@exception)
 
     assert_equal slack_notifier.notifier.username, options[:username]
   end
 
-  test "should have the username 'ExceptionNotifierBot' when unspecified" do
-    options = {
-      token: "token",
-      team:  "team",
-    }
-
-    Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {})
-
-    slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
-
-    assert_equal slack_notifier.notifier.username, 'ExceptionNotifierBot'
-  end
-
   test "should pass the additional parameters to Slack::Notifier.ping" do
     options = {
-      token: "token",
-      team:  "team",
+      webhook_url: "http://slack.webhook.url",
       username: "test",
       custom_hook: "hook",
       additional_parameters: {
@@ -88,13 +61,11 @@ class SlackNotifierTest < ActiveSupport::TestCase
     Slack::Notifier.any_instance.expects(:ping).with(fake_notification, {icon_url: "icon"})
 
     slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
-    slack_notifier.call(fake_exception)
+    slack_notifier.call(@exception)
   end
 
-  test "shouldn't send a slack notification if token is missing" do
-    options = {
-      team: "test"
-    }
+  test "shouldn't send a slack notification if webhook url is missing" do
+    options = {}
 
     slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
 
@@ -102,15 +73,30 @@ class SlackNotifierTest < ActiveSupport::TestCase
     assert_nil slack_notifier.call(fake_exception)
   end
 
-  test "shouldn't send a slack notification if team is missing" do
+  test "should pass along environment data" do
     options = {
-      token: "test"
+      webhook_url: "http://slack.webhook.url",
+      ignore_data_if: lambda {|k,v|
+        "#{k}" == 'key_to_be_ignored' || v.is_a?(Hash)
+      }
     }
 
-    slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
+    notification_options = {
+      env: {
+        'exception_notifier.exception_data' => {foo: 'bar', john: 'doe'}
+      },
+      data: {
+        'user_id'           => 5,
+        'key_to_be_ignored' => 'whatever',
+        'ignore_as_well'    => {what: 'ever'}
+      }
+    }
 
-    assert_nil slack_notifier.notifier
-    assert_nil slack_notifier.call(fake_exception)
+    expected_data_string = 'foo: bar, john: doe, user_id: 5'
+
+    Slack::Notifier.any_instance.expects(:ping).with(fake_notification(@exception, expected_data_string), {})
+    slack_notifier = ExceptionNotifier::SlackNotifier.new(options)
+    slack_notifier.call(@exception, notification_options)
   end
 
   private
@@ -123,7 +109,9 @@ class SlackNotifierTest < ActiveSupport::TestCase
     end
   end
 
-  def fake_notification
-    "An exception occurred: '#{fake_exception.message}' on '#{fake_exception.backtrace.first}'"
+  def fake_notification(exception=@exception, data_string=nil)
+    message = "An exception occurred: '#{exception.message}' on '#{exception.backtrace.first}'\n"
+    message += "*Data:*\n#{data_string}\n" unless data_string.nil?
+    message += "*Backtrace:*\n" + exception.backtrace.join("\n")
   end
 end
