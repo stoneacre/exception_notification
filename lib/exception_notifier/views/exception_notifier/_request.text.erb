@@ -1,7 +1,7 @@
 * URL        : <%= raw @request.url %>
 * HTTP Method: <%= raw @request.request_method %>
 * IP address : <%= raw @request.remote_ip %>
-* Parameters : <%= raw @request.filtered_parameters.inspect %>
+* Parameters : <%= raw inspect_object(@request.filtered_parameters) %>
 * Timestamp  : <%= raw Time.current %>
 * Server : <%= raw Socket.gethostname %>
 <% if defined?(Rails) && Rails.respond_to?(:root) %>
