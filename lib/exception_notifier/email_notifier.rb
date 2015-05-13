@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require "active_support/core_ext/hash/reverse_merge"
 require 'action_mailer'
 require 'action_dispatch'
@@ -75,10 +77,7 @@ module ExceptionNotifier
                 object.inspect
               else
                 object.to_s
-            end.encode(
-                'UTF-8',
-                { :invalid => :replace, :undef => :replace, :replace => '?' }
-            )
+            end.force_encoding(self.headers[:charset] || 'UTF-8')
           end
 
           def html_mail?
