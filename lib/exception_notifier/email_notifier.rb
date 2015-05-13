@@ -76,7 +76,8 @@ module ExceptionNotifier
               when Hash, Array
                 object.inspect
               else
-                object.to_s
+                object_str = object.to_s
+                object_str.frozen? ? object_str.dup : object_str
             end.force_encoding(self.headers[:charset] || 'UTF-8')
           end
 

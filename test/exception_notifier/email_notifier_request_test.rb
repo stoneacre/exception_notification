@@ -12,7 +12,7 @@ class EmailNotifierRequestTest < ActiveSupport::TestCase
       @mail      = @email_notifier.create_email(
           @exception,
           :env => {
-              'REQUEST_METHOD' => 'GET',
+              'REQUEST_METHOD' => 'GET'.freeze,
               'HTTP_HOST'      => 'example.com',
               'QUERY_STRING'   => 'data=привет&utf8=✓'.b,
               'rack.input'     => true
