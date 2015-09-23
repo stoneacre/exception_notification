@@ -4,8 +4,12 @@ module ExceptionNotifier
   class PivotalTrackerNotifier
 
     def initialize(options)
-      PivotalTracker::Client.token = options.delete(:api_token)
-      @project = PivotalTracker::Project.find(options.delete(:project_id))
+      begin
+        PivotalTracker::Client.token = options.delete(:api_token)
+        @project = PivotalTracker::Project.find(options.delete(:project_id))
+      rescue
+        @project = nil
+      end
     end
 
     def call(exception, options={})
@@ -17,10 +21,14 @@ module ExceptionNotifier
       @backtrace  = exception.backtrace ? clean_backtrace(exception) : []
       @data       = (@env['exception_notifier.exception_data'] || {}).merge(options[:data] || {})
 
-      create_story
+      create_story if valid?
     end
 
     private
+
+    def valid?
+      !@project.nil?
+    end
 
     def create_story
       story = @project.stories.create(name: title, story_type: 'bug', description: body)
