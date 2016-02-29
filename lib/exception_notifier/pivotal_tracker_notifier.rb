@@ -6,6 +6,7 @@ module ExceptionNotifier
     def initialize(options)
       begin
         PivotalTracker::Client.token = options.delete(:api_token)
+        PivotalTracker::Client.use_ssl = true
         @project = PivotalTracker::Project.find(options.delete(:project_id))
       rescue
         @project = nil
